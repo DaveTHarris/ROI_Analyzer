@@ -256,7 +256,7 @@ function loadButton_Callback(hObject, eventdata, handles)
     
     set(handles.minAxis, 'String', 5);
     set(handles.maxAxis, 'String', 6);
-    set(handles.stDevmultiplier, 'String', 2);
+    set(handles.stDevmultiplier, 'String', 10);
     
     % setup main axes
     set(handles.imAxes, 'XLim', [1 handles.width]);
@@ -1042,28 +1042,33 @@ handles.xLimits = get(gca,'XLim');  %# Get the range of the x axis
 handles.yLimits = get(gca,'YLim');  %# Get the range of the y axis
 
 Images = handles.imgdata;
-Images2 = handles.imgdata2;
+if handles.stimNum == 2
+    Images2 = handles.imgdata2;
+end
 [minT maxT]=getdfofRange(handles);
 
 for k = 1:size(Images,4)
     for i = 1:size(Images,3)
        
         meanImage=uint16(round(mean(Images(:,:,minT:maxT,k),3)));
-        meanImage2=uint16(round(mean(Images2(:,:,minT:maxT,k),3)));
-       
         deltaFimage(:,:,i,k)=(Images(:,:,i,k)-meanImage);
-        deltaFimage2(:,:,i,k)=(Images2(:,:,i,k)-meanImage2);
         deltaFoFimage(:,:,i,k)=double(deltaFimage(:,:,i,k))./double(meanImage);
-        deltaFoFimage2(:,:,i,k)=double(deltaFimage2(:,:,i,k))./double(meanImage2);
+        if handles.stimNum == 2
+            meanImage2=uint16(round(mean(Images2(:,:,minT:maxT,k),3)));
+            deltaFimage2(:,:,i,k)=(Images2(:,:,i,k)-meanImage2);
+            deltaFoFimage2(:,:,i,k)=double(deltaFimage2(:,:,i,k))./double(meanImage2);
+        end
      
     end
 end
 
 % The Delta F data are saved in the handles object below.
 handles.deltaFimagedata = deltaFimage;
-handles.deltaFimagedata2 = deltaFimage2;
 handles.deltaFoFimagedata = deltaFoFimage;
-handles.deltaFoFimagedata2 = deltaFoFimage2;
+if handles.stimNum == 2
+    handles.deltaFimagedata2 = deltaFimage2;
+    handles.deltaFoFimagedata2 = deltaFoFimage2;
+end
 handles = image_redraw(handles);
 guidata(hObject, handles);
 
