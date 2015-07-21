@@ -91,7 +91,7 @@ if plotType == 1
     %dfhalo(dfhalo<0)=0;
     dfhaloblue=bsxfun(@minus,fluorblue2,mF2blue);
     %dfhaloblue(dfhaloblue<0)=0;
-    assignin('base','dfhalo',dfhalo);
+    %assignin('base','dfhalo',dfhalo);
    % if dfhalo > 0
     
     fluorfinal=fluor-dfhalo;
@@ -103,8 +103,8 @@ if plotType == 1
     mfluorfinal=mean(fluorfinal(f0Range,:));
     mfluorfinalblue=mean(fluorfinalblue(f0Range,:));
     
-    assignin('base','mfluorfinal',mfluorfinal);
-    assignin('base','fluorfinal',fluorfinal);
+   % assignin('base','mfluorfinal',mfluorfinal);
+   % assignin('base','fluorfinal',fluorfinal);
     dfoff = bsxfun(@rdivide, fluorfinal(minT:maxT,:), mfluorfinal) - 1;
     dfoffblue = bsxfun(@rdivide, fluorfinalblue(minT:maxT,:), mfluorfinalblue) - 1;
     %dfoffhalo=bsxfun(@rdivide, fluor2(minT:maxT,:), mF) - 1;
@@ -113,13 +113,13 @@ if plotType == 1
     % intensity
 elseif plotType == 2
     dfhalo= bsxfun(@minus, fluor2, mF2);
-    assignin('base','dfhalo',dfhalo);
+   % assignin('base','dfhalo',dfhalo);
     
     dfhaloblue=bsxfun(@minus,fluorblue2,mF2blue);
-    assignin('base','fluor',fluor);
+   % assignin('base','fluor',fluor);
    
     fluorfinal = fluor-dfhalo;
-    assignin('base','fluorfinal',fluorfinal);
+   % assignin('base','fluorfinal',fluorfinal);
     fluorfinalblue = fluorblue-dfhaloblue;
     %dfoff = fluor(minT:maxT,:);
     dfoff = fluorfinal(minT:maxT,:);
@@ -142,7 +142,7 @@ counter = 0;
 handles.totalROIdataSlice{Z,1}(:,5)={0};
 handles.totalROIdataSlice2{Z,1}(:,5)={0};
    for j = 1:numActiveRoi
-      assignin('base','dfoff',dfoff);
+   %   assignin('base','dfoff',dfoff);
       %assignin('base','handles',handles);
       dfminT = str2double(get(handles.dfofMinTEdit, 'String'));
       dfmaxT = str2double(get(handles.dfofMaxTEdit, 'String'));
@@ -152,7 +152,7 @@ handles.totalROIdataSlice2{Z,1}(:,5)={0};
        %A=dfoff(:,j);
        A=dfoff(dfminT:dfmaxT,j);
        B=dfoffblue(dfminT:dfmaxT,j);
-       assignin('base','B',B);
+    %   assignin('base','B',B);
        %A(minThresh:maxThresh,:)=[];
        meanDf=nanmean(A);
        meanblueDf=nanmean(B);

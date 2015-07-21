@@ -31,8 +31,8 @@ for i=1:numActiveRoi
         middlemask = circle2mask([centerX centerY], radius + 2,512)==1;
         largermask = circle2mask([centerX centerY], radius + 15,512)==1;
         largermask(middlemask)=0;
-        assignin('base','largermask',largermask);
-        assignin('base','thismask',thismask);
+        %assignin('base','largermask',largermask);
+        %assignin('base','thismask',thismask);
          for t=1:Duration
             temp = handles.imgdata(:,:,t,Z);
             A = temp(thismask);
@@ -61,12 +61,12 @@ mF2 = mean(fluor2(f0Range, :));
 if plotType == 1
     %dfoff = bsxfun(@rdivide, fluor3(minT:maxT,:), mF) - 1;
     dfhalo= bsxfun(@minus, fluor2, mF2);
-    assignin('base','dfhalo',dfhalo);
+    %assignin('base','dfhalo',dfhalo);
     
     fluorfinal=fluor-dfhalo;
     mfluorfinal=mean(fluorfinal(f0Range,:));
-    assignin('base','mfluorfinal',mfluorfinal);
-    assignin('base','fluorfinal',fluorfinal);
+    %assignin('base','mfluorfinal',mfluorfinal);
+    %ssignin('base','fluorfinal',fluorfinal);
     dfoff = bsxfun(@rdivide, fluorfinal(minT:maxT,:), mfluorfinal) - 1;
     %dfoffhalo=bsxfun(@rdivide, fluor2(minT:maxT,:), mF) - 1;
     
