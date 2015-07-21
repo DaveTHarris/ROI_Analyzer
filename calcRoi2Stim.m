@@ -43,9 +43,14 @@ for i=1:numActiveRoi
             temp = handles.imgdata(:,:,t,Z);
             temp2 = handles.imgdata2(:,:,t,Z);
             A = temp(thismask);
+            CCC = quantile(A,.75);
+            %assignin('base','B',B);
+            A = A(A <= CCC);
             %Amed=median(A);
            % A(A>Amed)=NaN;
             B = temp2(thismask);
+            DDD = quantile(B,.75);
+            B = B(B <= DDD);
             %Bmed=median(B);
             %B(B>Bmed)=NaN;
             AA=temp(largermask);

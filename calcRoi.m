@@ -37,7 +37,7 @@ for i=1:numActiveRoi
             temp = handles.imgdata(:,:,t,Z);
             A = temp(thismask);
             B = quantile(A,.75);
-            assignin('base','B',B);
+            %assignin('base','B',B);
             A = A(A <= B);
             AA=temp(largermask);
 
