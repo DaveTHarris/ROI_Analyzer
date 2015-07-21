@@ -36,6 +36,9 @@ for i=1:numActiveRoi
          for t=1:Duration
             temp = handles.imgdata(:,:,t,Z);
             A = temp(thismask);
+            B = quantile(A,.75);
+            assignin('base','B',B);
+            A = A(A <= B);
             AA=temp(largermask);
 
             fluor(t,i) = nanmean(A);
