@@ -1440,7 +1440,9 @@ function exportTotalROI_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 totalROIdataSlice=handles.totalROIdataSlice;
-totalROIdataSlice2=handles.totalROIdataSlice2;
+if handles.stimNum == 2
+    totalROIdataSlice2=handles.totalROIdataSlice2;
+end
 basefoldername=handles.foldername(1:end-5);
 foregroundthresh= get(handles.dfofFgThreshSlider, 'Value');
 backgroundthresh= get(handles.dfofBgThreshSlider, 'Value');
@@ -1457,10 +1459,13 @@ if ~exist(ROIfoldername, 'dir')
 end
 
 %mkdir(ROIfoldername);
+if handles.stimNum == 2
+    ROIfilename2=strcat(ROIfoldername,'totalROIdataBlue.mat');
+    save(ROIfilename2,'totalROIdataSlice2');
+end
 ROIfilename=strcat(ROIfoldername,'totalROIdataGreen.mat');
-ROIfilename2=strcat(ROIfoldername,'totalROIdataBlue.mat');
 save(ROIfilename,'totalROIdataSlice');
-save(ROIfilename2,'totalROIdataSlice2');
+
 ROIDatafilename=strcat(ROIfoldername,'ROI_info.mat');
 save(ROIDatafilename,'foregroundthresh','minforActive','maxforActive','stdDevforActive','f0min','f0max');
 
