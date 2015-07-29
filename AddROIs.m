@@ -1,11 +1,11 @@
-function handles = AddROIsblue( handles )
+function handles = AddROIs( handles )
     [T Z] = getTZ(handles);
    
     axes(handles.imAxes);
     axis image;
     hold on;
 A = handles.totalROIdataSlice{Z,1}; 
-B = handles.totalROIdataSlice2{Z,1};
+
 roiList=A(:,1:2);   
     % Initially, the list of points is empty.
 x = [];
@@ -27,10 +27,10 @@ end
 sze=size(handles.totalROIdataSlice{Z,1},1);
 for i = 1:size(addROIs,1)
    handles.totalROIdataSlice{Z,1}{sze+i,1}=addROIs(i,1);
-   handles.totalROIdataSlice2{Z,1}{sze+i,1}=addROIs(i,1);
+ 
    handles.totalROIdataSlice{Z,1}{sze+i,2}=addROIs(i,2);
-   handles.totalROIdataSlice2{Z,1}{sze+i,2}=addROIs(i,2);
+  
    handles.totalROIdataSlice{Z,1}{sze+i,3}=6;
-   handles.totalROIdataSlice2{Z,1}{sze+i,3}=6;
+
 end
    assignin('base','handles',handles);

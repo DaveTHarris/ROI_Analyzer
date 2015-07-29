@@ -39,15 +39,17 @@ handles.totalROIdataSlice{sliceNumber,3}=edgeThresh;
  %code goes through and 
  for i = 1:size(circen,1)-1
      for j = i + 1:size(circen,1)
-        dist = sqrt((circen(i,1)-circen(j,1))^2 + (circen(i,2) + circen(j,2))^2);
+        dist = sqrt((circen(i,1)-circen(j,1))^2 + (circen(i,2) - circen(j,2))^2);
+        %dist
         if dist < cirrad(j)
             circen(j,:)=NaN;
             cirrad(j)=NaN; 
         end
      end
  end
- circen=circen(~any(isnan(circen),2),:);
- 
+ circen(isnan(circen(:,1)),:)=[];
+ cirrad(isnan(cirrad(:)))=[];
+ %assignin('base','circen',circen);
     if ~isempty(handles.totalROIdataSlice{sliceNumber,1})
         adder = size(handles.totalROIdataSlice{sliceNumber,1},1);
     else

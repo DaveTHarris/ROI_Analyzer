@@ -8,66 +8,82 @@ BitterStim=handles.totalROIdataSlice2;
  
 SugarStim=handles.totalROIdataSlice;
 
-assignin('base','SugarStim',SugarStim);
+assignin('base','handles',handles);
 counter=0;
 for i = 1:size(SugarStim,1)
     
     if ~isempty(SugarStim{i,1})
         A=SugarStim{i,1};
+        AA=BitterStim{i,1};
         %B=A(1,1);
 %         B=A(:,1:3);
 %         B=cell2mat(B);
         
-        
-        for j = 1:size(A,1)
-           counter = counter + 1;
-%            assignin('base','handles',handles);
-%            assignin('base','i',i);
-%            assignin('base','j',j);
-           if size(A{j,4},2) == 3
-              B=A{j,4};
-              C=B(:,1);
-              SugarData(:,counter)=C;
-           else
-               assignin('base','i',i);
-               assignin('base','j',j);
-               SugarData(:,counter)=A{j,4};
-           end
+        assignin('base','i',i);
+        Asub = cell2mat(A(:,5));
+        Asub = Asub == 2;
+        AAsub = cell2mat(AA(:,5));
+        AAsub = AAsub == 2;
+        assignin('base','Asub',Asub);
+        assignin('base','AAsub',AAsub);
+        if sum(Asub) > 0 || sum(AAsub) > 0
+            A=A(Asub | AAsub,:);
+            assignin('base','A',A);
+            AA=AA(Asub | AAsub ,:);
+            for j = 1:size(A,1)
+               counter = counter + 1;
+    %            assignin('base','handles',handles);
+    %            assignin('base','i',i);
+    %            assignin('base','j',j);
+               %if size(A{j,4},2) == 3
+                 
+                  B=A{j,4};
+                  BB=AA{j,4};
+                  C=B(:,1);
+                  CC=BB(:,1);
+                  SugarData(:,counter)=C;
+                  BitterData(:,counter)=CC;
+               %else
+    %                assignin('base','i',i);
+    %                assignin('base','j',j);
+    %                SugarData(:,counter)=A{j,4};
+               %end
+            end
         end
     end
     
       
     
 end
- counter =0;
- for i = 1:size(BitterStim,1)
-    
-    if ~isempty(BitterStim{i,1})
-        A=BitterStim{i,1};
-        %B=A(1,1);
-%         B=A(:,1:3);
-%         B=cell2mat(B);
-        
-        
-        for j = 1:size(A,1)
-           counter = counter + 1;
-%            assignin('base','counter',counter);
-%            assignin('base','A',A);
-%            assignin('base','j',j);
-%            assignin('base','i',i);
-           if size(A{j,4},2) == 3
-              B=A{j,4};
-              C=B(:,1);
-              BitterData(:,counter)=C;
-           else
-              BitterData(:,counter)=A{j,4};
-           end
-           assignin('base','BitterData',BitterData);
-            
-        end
-    end
-           
- end
+%  counter =0;
+%  for i = 1:size(BitterStim,1)
+%     
+%     if ~isempty(BitterStim{i,1})
+%         A=BitterStim{i,1};
+%         %B=A(1,1);
+% %         B=A(:,1:3);
+% %         B=cell2mat(B);
+%         
+%         
+%         for j = 1:size(A,1)
+%            counter = counter + 1;
+% %            assignin('base','counter',counter);
+% %            assignin('base','A',A);
+% %            assignin('base','j',j);
+% %            assignin('base','i',i);
+%            if size(A{j,4},2) == 3
+%               B=A{j,4};
+%               C=B(:,1);
+%               BitterData(:,counter)=C;
+%            else
+%               BitterData(:,counter)=A{j,4};
+%            end
+%            assignin('base','BitterData',BitterData);
+%             
+%         end
+%     end
+%            
+%  end
 
  for i = 1:size(SugarData,2)
     dataforplot(i,1)=max(SugarData(minThresh:maxThresh,i));

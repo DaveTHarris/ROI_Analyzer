@@ -26,7 +26,9 @@ for i=1:numActiveRoi
                 if radius < 7
                     radius = 7;
                 end
-%                 
+       %assignin('base','radius',radius);         
+       %assignin('base','centerX',centerX);
+       %assignin('base','centerY',centerY);
         thismask = circle2mask([centerX centerY], radius,512)==1;
         middlemask = circle2mask([centerX centerY], radius + 2,512)==1;
         largermask = circle2mask([centerX centerY], radius + 15,512)==1;
@@ -106,26 +108,80 @@ handles.totalROIdataSlice{Z,1}(:,5)={0};
       
        for i = 1:size(handles.totalROIdataSlice{Z,1}{j,4},1)
           handles.totalROIdataSlice{Z,1}{j,4}(i,3)=(handles.totalROIdataSlice{Z,1}{j,4}(i,1)-handles.totalROIdataSlice{Z,1}{j,4}(1,2))/handles.totalROIdataSlice{Z,1}{j,4}(2,2);
-
+            %tic
           if i >= minThresh & i <= maxThresh & handles.totalROIdataSlice{Z,1}{j,4}(i,3) > stdevMultiplier & handles.totalROIdataSlice{Z,1}{j,4}(i,1) > .08
           %if i >= minThresh & i <= maxThresh & handles.totalROIdataSlice{Z,1}{j,4}(i,1) > stdevMultiplier
-              if handles.totalROIdataSlice{Z,1}{j,5}~= 2 
-                    handles.totalROIdataSlice{Z,1}(j,5)={2}; 
-                    handles.colors{Z} = add_random_colors(handles.colors{Z},.4);
+              
+                if handles.totalROIdataSlice{Z,1}{j,5}~= 2 
+                    
+                  handles.totalROIdataSlice{Z,1}(j,5)={2};
+                    
+                   handles.colors{Z} = add_random_colors(handles.colors{Z},.4);
                     counter = counter + 1;
                     roiData{counter,1} = colText(num2str(counter), makeRgbString(handles.colors{Z}(:,counter)));
                     temp = handles.totalROIdataSlice{Z,1}{j,4};
                     temp = temp(minThresh:maxThresh,1);
-                    roiData{counter,2} = max(temp);                  
+                    roiData{counter,2} = max(temp); 
+                    
                end
                 
           end
-           
+          
        
        end
+%        if handles.totalROIdataSlice{Z,1}{j,5}==2
+%           if ~isempty(handles.totalROIdataSlice{Z-1,1})
+%               circen = [handles.totalROIdataSlice{Z,1}{j,1}, handles.totalROIdataSlice{Z,1}{j,2}];
+%               for ii = 1:size(handles.totalROIdataSlice{Z-1,1})
+%                     circen2 = [handles.totalROIdataSlice{Z-1,1}{ii,1}, handles.totalROIdataSlice{Z-1,1}{ii,2}];
+%                      dist = sqrt((circen(1)-circen2(1))^2 + (circen(2) - circen2(2))^2);
+%                         if dist < 6 & handles.totalROIdataSlice{Z-1,1}{ii,5} == 2
+%                             assignin('base','handles',handles);
+%                             assignin('base','ii',ii);
+%                             assignin('base','j',j);
+%                             a=max(handles.totalROIdataSlice{Z,1}{j,4}(minThresh:maxThresh,3));
+%                             assignin('base','a',a);
+%                             b= max(handles.totalROIdataSlice{Z-1,1}{ii,4}(minThresh:maxThresh,3));
+%                             
+%                             
+%                             assignin('base','b',b);
+%                             if a < b
+%                             %if max(handles.totalROIdataSlice{Z,1}{j,4}(:,3))< max(handles.totalROIdataSlice{Z-1,1}{ii,4}(:,3))
+%                                 handles.totalROIdataSlice{Z,1}(j,5)={0};
+%                             end
+%                         elseif dist < 6 & handles.totalROIdataSlice{Z-1,1}{ii,5} == 2
+%                             if max(handles.totalROIdataSlice{Z,1}{j,4}(minThresh:maxThresh,3))> max(handles.totalROIdataSlice{Z-1,1}{ii,4}(minThresh:maxThresh,3))
+%                                 handles.totalROIdataSlice{Z-1,1}(ii,5)={0};
+%                             end
+%                         end       
+%               end
+%           end
+%            if ~isempty(handles.totalROIdataSlice{Z+1,1})
+%               circen = [handles.totalROIdataSlice{Z,1}{j,1}, handles.totalROIdataSlice{Z,1}{j,2}];
+%               for ii = 1:size(handles.totalROIdataSlice{Z+1,1})
+%                     circen2 = [handles.totalROIdataSlice{Z+1,1}{ii,1}, handles.totalROIdataSlice{Z+1,1}{ii,2}];
+%                      dist = sqrt((circen(1)-circen2(1))^2 + (circen(2) - circen2(2))^2);
+%                         if dist < 6 & handles.totalROIdataSlice{Z+1,1}{ii,5} == 2
+%                             if max(handles.totalROIdataSlice{Z,1}{j,4}(minThresh:maxThresh,3))< max(handles.totalROIdataSlice{Z+1,1}{ii,4}(minThresh:maxThresh,3))
+%                                 handles.totalROIdataSlice{Z,1}(j,5)={0};
+%                             end
+%                         elseif dist < 6 & handles.totalROIdataSlice{Z+1,1}{ii,5} == 2
+%                             if max(handles.totalROIdataSlice{Z,1}{j,4}(minThresh:maxThresh,3))> max(handles.totalROIdataSlice{Z+1,1}{ii,4}(minThresh:maxThresh,3))
+%                                 handles.totalROIdataSlice{Z+1,1}(ii,:)={0};
+%                             end
+%                         end           
+%               end
+%           end
+%            
+%            
+%        end
+       
+       
+       
        
 
    end
+   
    if exist('roiData','var')
         handles.totalROIdataSlice{Z,7}=roiData;  
         set(handles.roiTable, 'Data', roiData);

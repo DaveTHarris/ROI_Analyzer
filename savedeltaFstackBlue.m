@@ -144,7 +144,7 @@ end
     mkdir(foldername,'DelFoverTboth');
     fullpathname = sprintf('%s/DelFoverTboth',foldername);
 
-    assignin('base','rgbArray',rgbArray);
+    %assignin('base','rgbArray',rgbArray);
   for j = 1:size(rgbArray,2)
     for i = 1:size(rgbArray,1)
      Z = rgbArray{i,j};
@@ -161,7 +161,7 @@ end
     filename =sprintf('%s/%03d.tiff',fullpathname,j);
     
     options.color=true;
-    assignin('base','rgbdeltaF',rgbdeltaF);
+    %assignin('base','rgbdeltaF',rgbdeltaF);
     saveastiff(rgbdeltaF,filename,options);
     
     

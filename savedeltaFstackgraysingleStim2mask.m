@@ -35,37 +35,47 @@ mask = zeros(512,512);
 for k = minZ:maxZ
 %     meanImage1=uint16(round(mean(Images(:,:,minT:maxT,k),3)));
 %     meanImage2=uint16(round(mean(Images2(:,:,minT:maxT,k),3)));
-    
-    if ~isempty(handles.totalROIdataSlice{k,1})
-        
-        for j = 1:size(handles.totalROIdataSlice{k,1},1)
-            masktemp(:,:,j)=circle2mask([handles.totalROIdataSlice{k,1}{j,1} handles.totalROIdataSlice{k,1}{j,2}],handles.totalROIdataSlice{k,1}{j,3}+5,512);
+    A=handles.totalROIdataSlice{k,1};
+    B=handles.totalROIdataSlice2{k,1};
+    if ~isempty(A)
+        Asub = cell2mat(A(:,5));
+        Bsub = cell2mat(B(:,5));
+        Asub = Asub == 2;
+        Bsub = Bsub == 2;
+
+        if sum(Asub) > 0 || sum(Bsub) > 0
+            A=A(Asub | Bsub,:);
+
+            for j = 1:size(A,1)
+                masktemp(:,:,j)=circle2mask([A{j,1} A{j,2}],A{j,3}+11,512);
+            end
+            mask =squeeze(max(masktemp,[],3));
+        else
+            mask=zeros(512,512);
         end
-        mask =squeeze(max(masktemp,[],3));
-    else
-        mask=zeros(512,512);
-    end
-    
-    
-    
-    for i = minDf:maxDf
-        
-        %deltaFimage(:,:,i,k)=(Images(:,:,i,k)-Images(:,:,2,k))./Images(:,:,2,k);
-         %deltaFimage(:,:,i,k)=Images(:,:,i,k)-Images(:,:,relFrame,k);
-%          assignin('base','minDf',minDf);
-%          assignin('base','i',i);
-%          assignin('base','k',k);
-%          assignin('base','minZ',minZ);
-         A=handles.deltaFimagedata(:,:,i,k);
-         B=handles.deltaFimagedata2(:,:,i,k);
-         assignin('base','A',A);
-         deltaFimage(:,:,i-minDf+1,k-minZ+1)=immultiply(A,uint16(mask));
-         %deltaFimage2(:,:,i-minDf+1,k-minZ+1)=immultiply(B,uint16(mask));
-         
+        clear A;
+        clear B;
+
+
+        for i = minDf:maxDf
+
+            %deltaFimage(:,:,i,k)=(Images(:,:,i,k)-Images(:,:,2,k))./Images(:,:,2,k);
+             %deltaFimage(:,:,i,k)=Images(:,:,i,k)-Images(:,:,relFrame,k);
+    %          assignin('base','minDf',minDf);
+    %          assignin('base','i',i);
+    %          assignin('base','k',k);
+    %          assignin('base','minZ',minZ);
+             A=handles.deltaFimagedata(:,:,i,k);
+             B=handles.deltaFimagedata2(:,:,i,k);
+            % assignin('base','A',A);
+             %deltaFimage(:,:,i-minDf+1,k-minZ+1)=immultiply(A,uint16(mask));
+             deltaFimage2(:,:,i-minDf+1,k-minZ+1)=immultiply(B,uint16(mask));
+
+        end
     end
 end
 %assignin('base','deltaFimage',deltaFimage);
-assignin('base','mask',mask);
+%assignin('base','mask',mask);
 deltaFimage=squeeze(max(deltaFimage,[],3));
 deltaFimage=squeeze(max(deltaFimage,[],3));
 %deltaFimage2=squeeze(max(deltaFimage2,[],3));
@@ -93,7 +103,7 @@ deltaFimage = fijiGaussian(deltaFimage,1);
        
         
 ZZZ=fullfile(foldername,'DeltaFStim2mask\');
-assignin('base','ZZZ',ZZZ);
+%assignin('base','ZZZ',ZZZ);
 if ~exist(ZZZ,'dir')
     
     mkdir(foldername,'DeltaFStim2mask');

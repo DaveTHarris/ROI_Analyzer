@@ -94,7 +94,7 @@ function handles = image_redraw( handles )
                     else
                         out(:,:,3)=uint16(zeros(512,512));
                     end
-                        assignin('base','out',out);
+                        %assignin('base','out',out);
 
                 end
             
@@ -147,15 +147,15 @@ function handles = image_redraw( handles )
                 dispb=cell2mat(handles.totalROIdataSlice2{Z,1}(:,5));
 
 
-                assignin('base','centerX',centerX);
-                assignin('base','centerY',centerY);
-                assignin('base','disp',disp);
-                assignin('base','dispb',dispb);
+                %assignin('base','centerX',centerX);
+                %assignin('base','centerY',centerY);
+                %assignin('base','disp',disp);
+                %assignin('base','dispb',dispb);
                 
                  
                 viscircles([centerX(disp==2 & dispb==2) centerY(disp==2 & dispb==2)],radius(disp==2 & dispb==2), 'EdgeColor', 'y','LineWidth',.005);
                 viscircles([centerX(disp==2 & dispb~=2) centerY(disp==2 & dispb~=2)],radius(disp==2 & dispb~=2), 'EdgeColor', 'g','LineWidth',.005);
-                viscircles([centerX(disp~=2 & dispb==2) centerY(disp~=2 & dispb==2)],radius(disp~=2 & dispb==2), 'EdgeColor', 'y','LineWidth',.005);
+                viscircles([centerX(disp~=2 & dispb==2) centerY(disp~=2 & dispb==2)],radius(disp~=2 & dispb==2), 'EdgeColor', 'r','LineWidth',.005);
                     
                end
                hold off;
@@ -172,7 +172,7 @@ function handles = image_redraw( handles )
                 totalROIs=totalROIs + tempROIs;
             end
             set(handles.numROItotal, 'String', num2str(totalROIs));
-            assignin('base','handles',handles);
+            %assignin('base','handles',handles);
     else
         
         %No DeltaF, just green channel
@@ -234,7 +234,7 @@ function handles = image_redraw( handles )
                     out(:,:,1)=uint16(zeros(512,512));
                     end
                     out(:,:,3)=uint16(zeros(512,512));
-                    assignin('base','out',out);
+                    %assignin('base','out',out);
                 end
                 imagesc(out, 'Parent', handles.imAxes);
             hold on;
@@ -246,12 +246,12 @@ function handles = image_redraw( handles )
                             temp = handles.totalROIdataSlice;
                             tempb = cell2mat(temp{Z,1}(:,5))==2;
                             
-                            assignin('base','temp',temp);
-                            assignin('base','tempb',tempb);
+                            %assignin('base','temp',temp);
+                            %assignin('base','tempb',tempb);
                             centerX=cell2mat(temp{Z,1}(tempb,1));
                             centerY=cell2mat(temp{Z,1}(tempb,2));
                             radius=cell2mat(temp{Z,1}(tempb,3));
-                            assignin('base','handles',handles);
+                            %assignin('base','handles',handles);
                             disp=cell2mat(temp{Z,1}(tempb,5));                        
                             a=handles.colors{Z}';
 %                             temp = handles.totalROIdataSlice;
@@ -261,10 +261,10 @@ function handles = image_redraw( handles )
 %                             assignin('base','handles',handles);
 %                             disp=cell2mat(handles.totalROIdataSlice{Z,1}(:,5));                        
 %                             a=handles.colors{Z}';
-                            assignin('base','a',a);
+                            %assignin('base','a',a);
                             %assignin('base','b',b);
-                            assignin('base','centerX',centerX)
-                            assignin('base','centerY',centerY);
+                            %assignin('base','centerX',centerX)
+                            %assignin('base','centerY',centerY);
                             b = a(1:length(centerX),:);
                             
                             b = b + (1 - b).*.25;
@@ -302,20 +302,34 @@ function handles = image_redraw( handles )
             hold off;
             end
             
-        %assignin('base','handles',handles);
-        set(handles.numROISlice, 'String', num2str(size(handles.totalROIdataSlice{Z,1},1)));
-        maxZ=str2double(get(handles.maxZText, 'String'));
+            %assignin('base','handles',handles);
+            set(handles.numROISlice, 'String', num2str(size(handles.totalROIdataSlice{Z,1},1)));
+            maxZ=str2double(get(handles.maxZText, 'String'));
 
-        totalROIs = 0;
-        for i = 1:maxZ
-            tempROIs=size(handles.totalROIdataSlice{i,1},1);
+            totalROIs = 0;
+            for i = 1:maxZ
+                tempROIs=size(handles.totalROIdataSlice{i,1},1);
 
-            totalROIs=totalROIs + tempROIs;
+                totalROIs=totalROIs + tempROIs;
 
-        end
-        set(handles.numROItotal, 'String', num2str(totalROIs));
-        assignin('base','handles',handles);  
-         
+            end
+            set(handles.numROItotal, 'String', num2str(totalROIs));
+            %assignin('base','handles',handles);  
+
         
-    end
-end    
+            end
+        %assignin('base','handles',handles);    
+        if ~isempty(handles.totalROIdataSlice{Z,7})
+            roiData = handles.totalROIdataSlice{Z,7};
+            if exist('roiData','var')
+                handles.totalROIdataSlice{Z,7}=roiData;  
+                set(handles.roiTable, 'Data', roiData);
+                drawnow;
+            end
+        else
+            roiData = [];
+            set(handles.roiTable, 'Data', roiData);
+            drawnow;
+        end              
+            
+    end    

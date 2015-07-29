@@ -182,8 +182,8 @@ function loadButton_Callback(hObject, eventdata, handles)
     end
     handles.stimNum = stimNum;
     nuclearfolder=uigetdir(foldername,'Pick directory of Alignment Images');
-    fullnuclearname = strcat(nuclearfolder,'/C561.tiff');
-    fullalignname = strcat(nuclearfolder,'/C488.tiff');
+    fullnuclearname = strcat(nuclearfolder,'\C561.tiff');
+    fullalignname = strcat(nuclearfolder,'\C488.tiff');
     if foldername == 0
         return;
     end
@@ -276,7 +276,7 @@ function loadButton_Callback(hObject, eventdata, handles)
     Height = info(1).Height;
     ZSlices = numel(info);
     Duration = numel(fnames);
-    assignin('base','foldername',foldername);
+    %assignin('base','foldername',foldername);
     Images = uint16(zeros(Width, Height, Duration, ZSlices));
     nuclearData = uint16(zeros(Width,Height,ZSlices));
     alignData = uint16(zeros(Width,Height,ZSlices));
@@ -303,9 +303,11 @@ function loadButton_Callback(hObject, eventdata, handles)
 
     % This is the field that holds all of the ROI data for stim 1
     handles.totalROIdataSlice=cell(ZSlices,7);
+    
     if stimNum == 2
         % This is the field that holds all of the ROI data for stim 2
         handles.totalROIdataSlice2=cell(ZSlices,7);
+        
     end
     handles.markerROI=cell(ZSlices,6);
 
@@ -327,9 +329,9 @@ function loadButton_Callback(hObject, eventdata, handles)
         Height = info(1).Height;
         ZSlices = numel(info);
         Duration2 = numel(fnames2);
-        assignin('base','foldername2',foldername2);
+        %assignin('base','foldername2',foldername2);
         Images2 = uint16(zeros(Width, Height, Duration, ZSlices));
-        assignin('base','Images2',Images2);
+        %assignin('base','Images2',Images2);
 
    
         parfor i=1:Duration2    
@@ -359,8 +361,9 @@ function loadButton_Callback(hObject, eventdata, handles)
     handles.colors = cell(ZSlices,1);
     handles.showRoi = cell(ZSlices,1);
     for i=1:ZSlices
-        handles.colors{i} = [];
+        handles.colors{i} = [1;0;0];
         handles.showRoi{i} = [];
+       
     end
     
     tSlider_Callback(hObject, [], handles);
@@ -418,6 +421,7 @@ handles.yLimits = get(gca,'YLim');  %# Get the range of the y axis
    % This sets the handle to the plotting window.
     h = handles.dataAxes;
     axes(handles.dataAxes);
+    cla;
     %handles = drawroicallback(handles);
     [T Z] = getTZ(handles);
     [minT, maxT] = getTLim(handles);
@@ -425,29 +429,31 @@ handles.yLimits = get(gca,'YLim');  %# Get the range of the y axis
     if handles.stimNum == 2
         B=handles.totalROIdataSlice2;
     end
-    assignin('base', 'handles', handles);
+    %assignin('base', 'handles', handles);
     if ~isempty(A{Z,1})
-        % This code here could probably be vectorized.
-        for i = 1:size(A{Z,1},1)
+
+        plotType = getCurrentPlotType(handles);
+        dfoff = zeros(minT:maxT,size(handles.totalROIdataSlice{Z,1},1));
+        for i = 1:size(handles.totalROIdataSlice{Z,1},1)
             for j = minT:maxT
-                dfoff(j,i)=A{Z,1}{i,4}(j);    
-                if handles.stimNum == 2
-                    dfoffblue(j,i)=B{Z,1}{i,4}(j);
-                end
+               % assignin('base','testhandles',handles);
+                dfoff(j,i)=handles.totalROIdataSlice{Z,1}{i,4}(j);    
             end
+
         end
         dfoff = dfoff';
-        if handles.stimNum == 2
-            dfoffblue = dfoffblue';
-        end
-        % This plots the data for the relevant ROIs on the current Z slice.
-        plotType = getCurrentPlotType(handles);
+
+        % use same colors as ROIs seen on screen
+        %assignin('base','handles',handles); 
+        clrs = handles.colors{Z}';
+         clrs = clrs + (1 - clrs).*.25;
+         set(h, 'ColorOrder', clrs);
+
+        % plot the values per ROI
+        %dfof = filter(3, [1 3-1], dfof);
+        %assignin('base', 'dfoff', dfoff);
         plot(minT:maxT, dfoff, 'Parent', h);
-        hold on
-        if handles.stimNum == 2
-            plot(minT:maxT, dfoffblue);
-        end
-        
+        %save(gr66aroi, dfof,'-append');
         if plotType == 1
             ylabel('\Delta F/F');
         elseif plotType == 3
@@ -458,10 +464,17 @@ handles.yLimits = get(gca,'YLim');  %# Get the range of the y axis
             ylabel('Z-Score');
         end
         xlabel('Frame');
+        %set(gca, 'XLimMode', 'manual');
+
         set(gca, 'XTick', minT:maxT);
+        %set(gca, 'XTickLabel', minT:maxT);
         set(gca, 'XLim', [minT maxT]);
+
         axis tight;
-        hold off
+        
+    
+    
+    
     end
     guidata(hObject, handles);
 
@@ -1230,51 +1243,75 @@ function exprtActiveMark_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 foldername = handles.foldername;
 totalROIdataSlice = handles.totalROIdataSlice;
+totalROIdataSlice2 = handles.totalROIdataSlice2;
 pathname=sprintf('%s/Markers',foldername);
 if ~exist(pathname,'dir')
    mkdir(foldername,'Markers'); 
 end
 adder = 1;
-for i = 1:size(totalROIdataSlice,1);
-    z=i;
-    
-    for j = 1:size(totalROIdataSlice{i,1},1)
-        if totalROIdataSlice{i,1}{j,5}==2
-            x = totalROIdataSlice{i,1}{j,1};
-            y = totalROIdataSlice{i,1}{j,2};
-            marker{adder,1}=x;
-            marker{adder,2}=512-y;
-            marker{adder,3}=z;
-            marker{adder,4}=10;
-            marker{adder,5}=2;
-            marker{adder,6}=adder;
-            marker{adder,7}=[];
-            marker{adder,8}=0;
-            marker{adder,9}=256;
-            marker{adder,10}=0;
-            adder = adder+1;
-        end
-    end
+if handles.stimNum == 1
+    for i = 1:size(totalROIdataSlice,1);
+        z=i;
 
+        for j = 1:size(totalROIdataSlice{i,1},1)
+            if totalROIdataSlice{i,1}{j,5}==2
+                x = totalROIdataSlice{i,1}{j,1};
+                y = totalROIdataSlice{i,1}{j,2};
+                marker{adder,1}=x;
+                marker{adder,2}=y;
+                marker{adder,3}=z;
+                marker{adder,4}=10;
+                marker{adder,5}=2;
+                marker{adder,6}=adder;
+                marker{adder,7}='Stim 1';
+               
+                adder = adder+1;
+            end
+        end
+
+    end
 end
 if handles.stimNum == 2
     for i = 1:size(totalROIdataSlice2,1);
     z=i;
         for j = 1:size(totalROIdataSlice2{i,1},1)
-            if totalROIdataSlice2{i,1}{j,5}==2
+            if totalROIdataSlice2{i,1}{j,5}==2 & totalROIdataSlice{i,1}{j,5}==2
                 x = totalROIdataSlice2{i,1}{j,1};
                 y = totalROIdataSlice2{i,1}{j,2};
                 marker{adder,1}=x;
-                marker{adder,2}=512-y;
+                marker{adder,2}=y;
                 marker{adder,3}=z;
                 marker{adder,4}=10;
                 marker{adder,5}=2;
                 marker{adder,6}=adder;
-                marker{adder,7}=[];
-                marker{adder,8}=0;
-                marker{adder,9}=256;
-                marker{adder,10}=0;
+                marker{adder,7}= 'Both';
+                
                 adder = adder+1;
+            elseif totalROIdataSlice2{i,1}{j,5}==2
+                x = totalROIdataSlice2{i,1}{j,1};
+                y = totalROIdataSlice2{i,1}{j,2};
+                marker{adder,1}=x;
+                marker{adder,2}=y;
+                marker{adder,3}=z;
+                marker{adder,4}=10;
+                marker{adder,5}=2;
+                marker{adder,6}=adder;
+                marker{adder,7}='Stim 2';
+                
+                adder = adder+1;
+            elseif totalROIdataSlice{i,1}{j,5}==2 
+                x = totalROIdataSlice2{i,1}{j,1};
+                y = totalROIdataSlice2{i,1}{j,2};
+                marker{adder,1}=x;
+                marker{adder,2}=y;
+                marker{adder,3}=z;
+                marker{adder,4}=10;
+                marker{adder,5}=2;
+                marker{adder,6}=adder;
+                marker{adder,7}='Stim 1';
+                
+                adder = adder+1;
+                
             end
         end
 
@@ -1282,6 +1319,8 @@ if handles.stimNum == 2
 end
 
 fullpathname=sprintf('%s/Markers/ActiveROIS.marker',foldername);
+%assignin('base','fullpathname',fullpathname);
+%assignin('base','marker',marker);
 cell2csv(fullpathname,marker);
 
 % --- Executes on button press in exprtAllMark.
@@ -1308,7 +1347,7 @@ for i = 1:size(totalROIdataSlice,1);
         x = totalROIdataSlice{i,1}{j,1};
         y = totalROIdataSlice{i,1}{j,2};
         marker{adder,1}=x;
-        marker{adder,2}=512-y;
+        marker{adder,2}=y;
         marker{adder,3}=z;
         marker{adder,4}=10;
         marker{adder,5}=2;
@@ -1327,7 +1366,7 @@ if handles.stimNum == 2
         x = totalROIdataSlice2{i,1}{j,1};
         y = totalROIdataSlice2{i,1}{j,2};
         marker{adder,1}=x;
-        marker{adder,2}=512-y;
+        marker{adder,2}=y;
         marker{adder,3}=z;
         marker{adder,4}=10;
         marker{adder,5}=2;
@@ -1407,27 +1446,24 @@ handles.minThresh = str2num(get(handles.minAxis,'string'));
 handles.maxThresh = str2num(get(handles.maxAxis,'string'));
 [filename pathname]=uigetfile('.mat','Load Stim 1 Data');
 fullfilename=fullfile(pathname,filename);
+
 if handles.stimNum == 2
             [filename2 pathname2]=uigetfile(pathname,'Load Stim 2 Data');
             fullfilename2=fullfile(pathname2,filename2);
 end
-
-load(fullfilename);
-if ~exist('totalROIdataSlice','var')
-    handles.totalROIdataSlice=totalROIdataSlice2;
-else
-    handles.totalROIdataSlice=totalROIdataSlice;
-end
 clear handles.totalROIdataSlice;
 clear handles.totalROIdataSlice2;
 
+load(fullfilename);
+
+handles.totalROIdataSlice=totalROIdataSlice;
+
 if handles.stimNum == 2
     load(fullfilename2);
-    if ~exist('totalROIdataSlice','var')
-        handles.totalROIdataSlice2=totalROIdataSlice2;
-    else
-        handles.totalROIdataSlice2=totalROIdataSlice;
-    end
+    
+    handles.totalROIdataSlice2=totalROIdataSlice2;
+    
+            
 end
 
 handles = image_redraw(handles);
@@ -1459,12 +1495,12 @@ if ~exist(ROIfoldername, 'dir')
 end
 
 %mkdir(ROIfoldername);
+ROIfilename=strcat(ROIfoldername,'totalROIdataGreen.mat');
+save(ROIfilename,'totalROIdataSlice');
 if handles.stimNum == 2
     ROIfilename2=strcat(ROIfoldername,'totalROIdataBlue.mat');
     save(ROIfilename2,'totalROIdataSlice2');
 end
-ROIfilename=strcat(ROIfoldername,'totalROIdataGreen.mat');
-save(ROIfilename,'totalROIdataSlice');
 
 ROIDatafilename=strcat(ROIfoldername,'ROI_info.mat');
 save(ROIDatafilename,'foregroundthresh','minforActive','maxforActive','stdDevforActive','f0min','f0max');
@@ -1478,13 +1514,13 @@ function singleDeltaFbutton_Callback(hObject, eventdata, handles)
 if handles.stimNum == 2
      
     if get(handles.traG,'Value') == get(handles.traG,'Max') && get(handles.traB,'Value') == get(handles.traB,'Max')    
-        if get(handles.showROIbut,'Value') == get(handles.showROIbut,'Max')
+        if get(handles.showActiveROIs,'Value') == get(handles.showActiveROIs,'Max')
             savedeltaFstackBlueSingle( handles );
         else
             savedeltaFstackBlueSinglenomask( handles );
         end
     elseif get(handles.traG,'Value') == get(handles.traG,'Max') && get(handles.traB,'Value') == get(handles.traB,'Min')
-        if get(handles.showROIbut,'Value') == get(handles.showROIbut,'Max')
+        if get(handles.showActiveROIs,'Value') == get(handles.showActiveROIs,'Max')
             savedeltaFstackgraysingleStim1mask ( handles );
         else
             savedeltaFstackgraysingleStim1 ( handles );
@@ -1492,7 +1528,7 @@ if handles.stimNum == 2
         
     elseif get(handles.traG,'Value') == get(handles.traG,'Min') && get(handles.traB,'Value') == get(handles.traB,'Max')
         
-        if get(handles.showROIbut,'Value') == get(handles.showROIbut,'Max')
+        if get(handles.showActiveROIs,'Value') == get(handles.showActiveROIs,'Max')
             savedeltaFstackgraysingleStim2mask ( handles );
         else
             savedeltaFstackgraysingleStim2 ( handles );
@@ -1502,7 +1538,7 @@ if handles.stimNum == 2
     end
     
 else    
-    if get(handles.showROIbut,'Value') == get(handles.showROIbut,'Max')
+    if get(handles.showActiveROIs,'Value') == get(handles.showActiveROIs,'Max')
             savedeltaFstackgraysingleStim1mask ( handles );
     else
             savedeltaFstackgraysingleStim1 ( handles );
@@ -1633,7 +1669,7 @@ function clearROIdata_Callback(hObject, eventdata, handles)
 %handles=rmfield(handles,'totalROIdataSlice');
 handles.totalROIdataSlice(Z,:)={[]};
 handles.totalROIdataSlice2(Z,:)={[]};
-handles.colors{Z}=[];
+handles.colors{Z}=[1;0;0];
 handles = image_redraw(handles);
 %Z = size(handles.imgdata,4);
 %handles.totalROIdataSlice = cell(Z,6);
@@ -2095,23 +2131,37 @@ if ~exist(pathname,'dir')
 end
 adder = 1;
 for i = 1:size(totalROIdataSlice,1);
-    z=i;
-    
-    for j = 1:size(totalROIdataSlice{i,1},1)
-        if totalROIdataSlice{i,1}{j,5}==2
-            x = totalROIdataSlice{i,1}{j,1};
-            y = totalROIdataSlice{i,1}{j,2};
-            marker{adder,1}='stim 1';
-            marker{adder,2}=x;
-            marker{adder,3}=y;
-            marker{adder,4}=z;
-            assignin('base','marker',marker);
-            assignin('base','totalROIdataSlice',totalROIdataSlice);
-            marker(adder,5:maxT - minT + 5) = num2cell(totalROIdataSlice{i,1}{j,4}(:,1));
-            adder = adder+1;
-        end
-    end
-
+    z=i;   
+    if get(handles.showActiveROIs,'Value') == get(handles.showActiveROIs,'Max')
+        for j = 1:size(totalROIdataSlice{i,1},1)
+             if totalROIdataSlice{i,1}{j,5}==2 
+                x = totalROIdataSlice{i,1}{j,1};
+                y = totalROIdataSlice{i,1}{j,2};
+                marker{adder,1}='stim 1';
+                marker{adder,2}=x;
+                marker{adder,3}=y;
+                marker{adder,4}=z;
+                %assignin('base','marker',marker);
+                %assignin('base','totalROIdataSlice',totalROIdataSlice);
+                marker(adder,5:maxT - minT + 5) = num2cell(totalROIdataSlice{i,1}{j,4}(:,1));
+                adder = adder+1;
+             end
+                          
+        end   
+    else
+         for j = 1:size(totalROIdataSlice{i,1},1)
+               x = totalROIdataSlice{i,1}{j,1};
+               y = totalROIdataSlice{i,1}{j,2};
+               marker{adder,1}='stim 1';
+               marker{adder,2}=x;
+               marker{adder,3}=y;
+               marker{adder,4}=z;
+               %assignin('base','marker',marker);
+               %assignin('base','totalROIdataSlice',totalROIdataSlice);
+               marker(adder,5:maxT - minT + 5) = num2cell(totalROIdataSlice{i,1}{j,4}(:,1));
+               adder = adder+1;   
+         end
+     end
 end
 if handles.stimNum == 2
     for i = 1:size(totalROIdataSlice2,1);

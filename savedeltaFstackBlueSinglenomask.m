@@ -55,8 +55,8 @@ deltaFimage = imadjust(deltaFimage,[slidervalLow sliderval], [0 1]);
 deltaFimage = fijiGaussian(deltaFimage,1); 
 deltaFimage2 = imadjust(deltaFimage2,[slidervalLow sliderval], [0 1]);
 deltaFimage2 = fijiGaussian(deltaFimage2,1);
-assignin('base','deltaFimage',deltaFimage);
-assignin('base','deltaFimage2',deltaFimage2);
+%assignin('base','deltaFimage',deltaFimage);
+%assignin('base','deltaFimage2',deltaFimage2);
         
            
         rgb(:,:,1)=deltaFimage2;
@@ -67,7 +67,7 @@ assignin('base','deltaFimage2',deltaFimage2);
        
         
 ZZZ=fullfile(foldername,'DeltaFRGBnomask\');
-assignin('base','ZZZ',ZZZ);
+%assignin('base','ZZZ',ZZZ);
 if ~exist(ZZZ,'dir')
     
     mkdir(foldername,'DeltaFRGBnomask');
@@ -77,7 +77,7 @@ end
     filename=fullfile(foldername,'DeltaFRGBnomask',sprintf('%03d-%03d.tiff',minZ,maxZ));
    
     options.color=true;
-    assignin('base','rgb',rgb);
+    %assignin('base','rgb',rgb);
     saveastiff(rgb,filename,options);
     
 end

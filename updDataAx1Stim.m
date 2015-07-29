@@ -33,7 +33,8 @@ dfoff = zeros(minT:maxT,size(handles.totalROIdataSlice{Z,1},1));
 dfoff = dfoff';
 
 % use same colors as ROIs seen on screen
- clrs = handles.colors{Z}';
+%assignin('base','handles',handles); 
+clrs = handles.colors{Z}';
  clrs = clrs + (1 - clrs).*.25;
  set(h, 'ColorOrder', clrs);
 

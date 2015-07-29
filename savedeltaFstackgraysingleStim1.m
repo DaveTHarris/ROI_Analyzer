@@ -2,11 +2,16 @@ function  savedeltaFstackgraysingleStim1( handles )
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 
-[tMin tMax]=getTLim(handles);
-[zMin zMax]=getZLim(handles);
-
+maxZ = str2double(get(handles.maxZEdit,'String'));
+minZ = str2double(get(handles.minZEdit,'String'));
+%assignin('base','minZ',minZ);
 %For Gaussian
-sigma = 1;
+%sigma = 1;
+[minT, maxT]=getdfofRange(handles);
+minDf = str2double(get(handles.minAxis,'String'));
+maxDf = str2double(get(handles.maxAxis,'String'));
+%For Gaussian
+
 
 %For background Thresholding
 bgThreshold = get(handles.dfofBgThreshSlider, 'Value');
@@ -14,111 +19,40 @@ bgThreshold = get(handles.dfofBgThreshSlider, 'Value');
 %For Foregound Thresholding
 fgThreshold = get(handles.dfofFgThreshSlider, 'Value');
 %relFrame = str2num(get(handles.dfofMinTEdit,'String'));
-relFrame = 2;
+
 foldername = handles.foldername;
 Images = handles.imgdata;
 
 
-for k = 1:size(Images,4)
-    for i = 2:size(Images,3)
-        
-        %deltaFimage(:,:,i,k)=(Images(:,:,i,k)-Images(:,:,2,k))./Images(:,:,2,k);
-         deltaFimage(:,:,i,k)=Images(:,:,i,k)-Images(:,:,i-1,k);
+image=handles.deltaFimagedata(:,:,minDf:maxDf,minZ:maxZ);
+dfofimage=handles.deltaFoFimagedata(:,:,minDf:maxDf,minZ:maxZ);
+%This statement should directly change the lower cutoff
+%value for the dfofimage. This should be adjustable by
+%the user. The slidervalLow variable does the same
+%thing in a modifiable way.
+image(dfofimage<.02)=0;
+sliderval = get(handles.dfofFgThreshSlider, 'Value');
+slidervalLow = get(handles.dfofBgThreshSlider, 'Value');
     
 
+
+for i = 1:size(image,4)
+    for j = 1:size(image,3)
+        A = image(:,:,j,i);
+        A = fijiGaussian(A,1);
+        A = imadjust(A,[slidervalLow sliderval], [0 1]);
+        adjimage(:,:,j,i)= A;
     end
 end
 
-imageArray=cell(size(deltaFimage,4),size(deltaFimage,3));
-GaussianFiltdeltaF = zeros(512,512,size(deltaFimage,3),size(deltaFimage,4));
-GaussianFiltdeltaFind = uint8(zeros(512,512,size(deltaFimage,3),size(deltaFimage,4)));
-%rgbArray=cell(size(deltaFimage,4),size(deltaFimage,3));
-
-
-maxDeltaF = double(max(deltaFimage(:)));
-minDeltaF = double(min(deltaFimage(:)));
-dfofRange = maxDeltaF - minDeltaF;
-cmax = minDeltaF + (fgThreshold * dfofRange);
-cmin = minDeltaF + (bgThreshold * cmax);
-        
-
-
-for i = 1:size(deltaFimage,4)
-    for j = 1:size(deltaFimage,3)
-        A = deltaFimage(:,:,j,i);
-        
-        
-        G = fspecial('gaussian',[4 4],sigma);
-        blurImage = imfilter(A,G);
-         
-        
-%         minDfof = min(blurImage(:));
-%         maxDfof = max(blurImage(:));
-%         dfofRange = maxDfof - minDfof;
-%         
-%         cmax = minDfof + (fgThreshold * dfofRange);
-%         cmin = minDfof + (bgThreshold * cmax);
-%         
-        
-        
-        
-        blurImage(blurImage > cmax) = cmax;
-        %blurImage(blurImage < cmin) = cmin;
-        blurImage(blurImage < cmin) = 0;
-        
-       
-        
-        blurImagegray=mat2gray(blurImage);
-        blurImageIndx=gray2ind(blurImagegray,256);
-        
-        A = blurImageIndx;
-        BW =  im2bw(A,0.1);
-        BW2 = bwareaopen(BW,15);
-        AA = immultiply(A,BW2);
-        %sizeFiltdeltaF(:,:,j,i) = AA;
-        AA = imfilter(AA,G);
-        
-        %GaussianFiltdeltaF(:,:,j,i) = blurImage;
-        GaussianFiltdeltaFind(:,:,j,i) =AA;
-        
-        
-       
-        
-        imageArray{i,j}=AA;
-       
-        
-    end
-end
-%GaussianFiltdeltaF = mat2gray(GaussianFiltdeltaF);
-%GaussianFiltdeltaF = gray2ind(GaussianFiltdeltaF,256);
-adder1 = 1;
-for i = tMin:tMax
-    adder2=1;
-    for j = zMin:zMax
-        
-        finalImg(:,:,adder1,adder2)=imageArray{j,i};
-        adder2 = adder2+1;
-    end
-    adder1=adder1+1;
-end
-% for i = 1:size(GaussianFiltdeltaFind,3)
-%     a=squeeze(GaussianFiltdeltaFind(:,:,i,:));
-%    
-%     formatSpec='/Users/davidharris/Desktop/BitterSugarFly1/SugarLegsStim/bitteratpvssugar2/RawData/ZAligned/DeltaFRelativeto3/%d.tiff';
-%     filename = sprintf(formatSpec,i);
-%     
-%     saveastiff(a,filename);
-%     
-% end
 
     mkdir(foldername,'singleDeltaFStim1');
     fullpathname = sprintf('%s/singleDeltaFStim1',foldername);
-finalImg=max(finalImg,[],4);
-finalImg=max(squeeze(finalImg),[],3);
+    finalImg=squeeze(max(adjimage,[],4));
+    finalImg=squeeze(max(finalImg,[],3));
+     
     
- 
-    
-    filename =sprintf('%s/t%03d-%03d_z%03d-%03d.tiff',fullpathname,tMin,tMax,zMin,zMax);
+    filename =sprintf('%s/t%03d-%03d_z%03d-%03d.tiff',fullpathname,minDf,maxDf,minZ,maxZ);
     
     %options.color=true;
     %assignin('base','rgbdeltaF',rgbdeltaF);

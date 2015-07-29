@@ -22,14 +22,14 @@ function [ handles ] = alignBluetoGreenparallel( handles )
 
             optimizer = registration.optimizer.RegularStepGradientDescent;
             optimizer.MaximumIterations = 100;
-            optimizer.MinimumStepLength = 5e-3;
+            optimizer.MinimumStepLength = 1e-7;
             metric = registration.metric.MeanSquares(); 
 
             %tic
     %         [optimizer,metric] = imregconfig('monomodal');
             fixedimage=image(:,:,1,Z);
             parfor j=1:duration
-            alignedGreen(:,:,j) = imregister(image(:,:,j,Z),fixedimage,'rigid',optimizer,metric);
+            alignedGreen(:,:,j) = imregister(image(:,:,j,Z),fixedimage,'translation',optimizer,metric);
 
            % toc
             end
@@ -52,13 +52,13 @@ function [ handles ] = alignBluetoGreenparallel( handles )
 
             optimizer = registration.optimizer.RegularStepGradientDescent;
             optimizer.MaximumIterations = 100;
-            optimizer.MinimumStepLength = 5e-3;
+            optimizer.MinimumStepLength = 1e-7;
             metric = registration.metric.MeanSquares(); 
 
             fixedImage=image(:,:,1,Z);   
             tic
             parfor j = 1:duration2
-                alignedBlue(:,:,j) = imregister(image2(:,:,j,Z),fixedImage,'rigid',optimizer,metric);
+                alignedBlue(:,:,j) = imregister(image2(:,:,j,Z),fixedImage,'translation',optimizer,metric);
             end
             toc
             image2(:,:,:,Z)=alignedBlue;
